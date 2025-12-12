@@ -2,32 +2,126 @@ import streamlit as st
 import pandas as pd
 import datetime as dt
 
-# -------------------------------------------------
-# BASIC PAGE SETUP
-# -------------------------------------------------
-st.set_page_config(page_title="Fixture Audit System", layout="wide")
+# ---------------- BASIC SETUP ----------------
+st.set_page_config(
+    page_title="Fixture Audit System",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
 # ---------- LOAD MASTER CONFIG ----------
-# config_master.csv must have columns:
-# line, sub_assembly, kind, fixture_no, station_no, station_name,
-# fixture_part_desc, check_point, qty, frequency_cycles
 df_cfg = pd.read_csv("config_master.csv")
 
-# Clean important types
+for col in ["qty", "frequency_cycles"]:
+    if col in df_cfg.columns:
+        df_cfg[col] = pd.to_numeric(df_cfg[col], errors="coerce").fillna(0).astype(int)
+
+date_col = "Changed before date"
+if date_col in df_cfg.columns:
+    df_cfg[date_col] = pd.to_datetime(
+        df_cfg[date_col].astype(str).str.strip(),
+        format="%d-%m-%Y",
+        errors="coerce",
+    ).dt.date
+
 df_cfg["line"] = df_cfg["line"].astype(str)
 df_cfg["sub_assembly"] = df_cfg["sub_assembly"].astype(str)
 df_cfg["kind"] = df_cfg["kind"].astype(str)
 
-# ---------- SIDEBAR NAV ----------
-page = st.sidebar.selectbox(
-    "Navigation",
-    ["Login", "Dashboard", "Start New Audit", "Configure", "Audit History"],
+# ---------- GLOBAL SIDEBAR CSS (flex column) ----------
+st.markdown(
+    """
+    <style>
+    /* make sidebar a flex column so we can push logout to bottom */
+    div[data-testid="stSidebar"] > div:first-child {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
-st.sidebar.write("Royal Enfield")
 
-# =================================================
-# LOGIN PAGE
-# =================================================
+# ---------- SIDEBAR WITH CLICKABLE BLOCKS ----------
+PAGES = ["Login", "Dashboard", "Start New Audit", "Configure", "Audit History"]
+
+if "page" not in st.session_state:
+    st.session_state["page"] = "Login"
+
+def nav_card(label: str, danger: bool = False):
+    is_active = st.session_state["page"] == label
+    if danger:
+        bg = "#7F1D1D"
+        border = "#F97373"
+    else:
+        bg = "#31333F" if is_active else "#1F2630"
+        border = "#FF4B4B" if is_active else "#4F4F4F"
+
+    if st.button(label, key=f"nav_{label}", use_container_width=True):
+        if danger:
+            # logout: clear session and go to Login
+            for k in list(st.session_state.keys()):
+                del st.session_state[k]
+            st.session_state["page"] = "Login"
+        else:
+            st.session_state["page"] = label
+        st.rerun()
+
+    # very small vertical spacing and compact cards
+    st.markdown(
+        f"""
+        <style>
+        div[data-testid="stSidebar"] div[data-testid="stButton"][key="nav_{label}"] > button {{
+            background-color: {bg};
+            border: 1px solid {border};
+            border-radius: 8px;
+            padding: 0.22rem 0.45rem;
+            margin-top: 0.06rem;
+            margin-bottom: 0.06rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.86rem;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with st.sidebar:
+    # HEADER AREA
+    st.markdown(
+        """
+        <div style="font-size: 2.0rem; font-weight: 900; margin-bottom: 0.05rem;">
+            Royal Enfield
+        </div>
+        <hr style="margin-top:0.25rem; margin-bottom:0.30rem; border:0; border-top:1px solid #444;">
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # NAVIGATION AREA (top part of flex)
+    nav_container = st.container()
+    with nav_container:
+        for p in PAGES:
+            nav_card(p)
+
+    # SPACER to push logout to very bottom
+    st.markdown(
+        "<div style='flex:1 1 auto;'></div>",
+        unsafe_allow_html=True,
+    )
+
+    # LOGOUT AT BOTTOM
+    st.markdown(
+        "<hr style='margin:0.25rem 0 0.18rem 0; border-top:1px solid #444;'>",
+        unsafe_allow_html=True,
+    )
+    nav_card("Logout", danger=True)
+
+page = st.session_state["page"]
+
+# ---------------- LOGIN PAGE ----------------
 if page == "Login":
     st.title("FIXTURE AUDIT SYSTEM")
     st.subheader("Royal Enfield")
@@ -38,9 +132,7 @@ if page == "Login":
     if st.button("Login"):
         st.success("Login button clicked (demo only, no restriction).")
 
-# =================================================
-# DASHBOARD PAGE
-# =================================================
+# ---------------- DASHBOARD PAGE ----------------
 elif page == "Dashboard":
     st.title("Dashboard")
 
@@ -58,19 +150,12 @@ elif page == "Dashboard":
     search = st.text_input("Search")
     st.button("Start New Audit")
 
-# =================================================
-# START NEW AUDIT PAGE
-# =================================================
+# ---------------- START NEW AUDIT PAGE ----------------
 elif page == "Start New Audit":
     st.title("Start New Audit")
 
-    # 1) Select Line
-    line_options = (
-        df_cfg["line"].dropna().astype(str).drop_duplicates().tolist()
-    )
-    line = st.selectbox("Line", sorted(line_options))
+    line = st.selectbox("Line", sorted(df_cfg["line"].unique()))
 
-    # 2) Select Sub Assembly for that line
     sa_options = (
         df_cfg[df_cfg["line"] == line]["sub_assembly"]
         .dropna()
@@ -80,7 +165,6 @@ elif page == "Start New Audit":
     )
     sub_assembly = st.selectbox("Sub Assembly", sorted(sa_options))
 
-    # 3) Fixture or Tool
     kind = st.radio("What do you want to change?", ["Fixture", "Tool"])
 
     base_subset = df_cfg[
@@ -89,34 +173,22 @@ elif page == "Start New Audit":
         & (df_cfg["kind"] == kind)
     ]
 
-    # 4) Choose specific fixture / station
     if kind == "Fixture":
-        fixture_options = (
-            base_subset["fixture_no"]
-            .dropna()
-            .astype(str)
-            .drop_duplicates()
-            .tolist()
+        fixture = st.selectbox(
+            "Fixture No.",
+            base_subset["fixture_no"].dropna().astype(str).unique(),
         )
-        fixture = st.selectbox("Fixture No.", fixture_options)
         check_subset = base_subset[base_subset["fixture_no"].astype(str) == fixture]
         st.write(f"Selected fixture: {fixture}")
     else:
-        station_options = (
-            base_subset["station_no"]
-            .dropna()
-            .astype(str)
-            .drop_duplicates()
-            .tolist()
+        station = st.selectbox(
+            "Station No.",
+            base_subset["station_no"].dropna().astype(str).unique(),
         )
-        station = st.selectbox("Station No.", station_options)
         check_subset = base_subset[base_subset["station_no"].astype(str) == station]
         station_name = str(check_subset["station_name"].iloc[0])
         st.write(f"Selected station: {station} – {station_name}")
 
-    # -------------------------------------------------
-    # CHECKLIST TABLE WITH STATUS / REMARKS / IMAGE
-    # -------------------------------------------------
     st.divider()
     st.subheader("Checklist")
 
@@ -130,17 +202,15 @@ elif page == "Start New Audit":
         }
     ).reset_index(drop=True)
 
-    # ---- Header row (add S.No as first column) ----
     h0, h1, h2, h3, h4, h5, h_status, h8, h9, h10 = st.columns(
         [0.7, 3, 3, 0.7, 1.4, 1.6, 1.2, 1.8, 2.0, 2.0]
     )
-    h0.write("**S.No**")
+    h0.write("**S.N o**")
     h1.write("**Fixture Part description**")
     h2.write("**Check point**")
     h3.write("**Qty**")
     h4.write("**Frequency (cycles)**")
     h5.write("**Current Frequency (cycles)**")
-
     with h_status:
         st.write("**Status**")
         s1, s2 = st.columns(2)
@@ -148,12 +218,10 @@ elif page == "Start New Audit":
             st.write("**Yes**")
         with s2:
             st.write("**No**")
-
     h8.write("**Changed before Date**")
     h9.write("**Remarks**")
     h10.write("**Image**")
 
-    # State storage
     ss = st.session_state
     ss.setdefault("row_yes", {})
     ss.setdefault("row_no", {})
@@ -162,15 +230,17 @@ elif page == "Start New Audit":
     ss.setdefault("row_files", {})
 
     today = dt.date.today()
+    original_indices = check_subset.index.to_list()
 
-    # ---- One visual row per checklist item ----
-    for idx, row in table.iterrows():
+    for local_idx, row in table.iterrows():
+        df_index = original_indices[local_idx]
+
         c0, c1, c2, c3, c4, c5, c_status, c8, c9, c10 = st.columns(
             [0.7, 3, 3, 0.7, 1.4, 1.6, 1.2, 1.8, 2.0, 2.0]
         )
 
         with c0:
-            st.write(idx + 1)  # S.No
+            st.write(local_idx + 1)
 
         with c1:
             st.write(row["Fixture Part description"])
@@ -179,80 +249,80 @@ elif page == "Start New Audit":
         with c3:
             st.write(int(row["Qty"]))
         with c4:
-            base_freq = int(row["Frequency (cycles)"])
-            st.write(base_freq)
+            st.write(int(row["Frequency (cycles)"]))
 
-        # Changed before Date: choose date
+        csv_date = df_cfg.loc[df_index, date_col] if date_col in df_cfg.columns else None
+        default_date = csv_date if isinstance(csv_date, dt.date) else today
+
         with c8:
-            key_dt = f"date_{idx}"
-            default_dt = ss["row_change_date"].get(idx, today)
-            date_val = st.date_input("", value=default_dt, key=key_dt)
-            ss["row_change_date"][idx] = date_val
+            key_dt = f"date_{df_index}"
+            chosen_date = st.date_input("", value=default_date, key=key_dt)
+            ss["row_change_date"][df_index] = chosen_date
 
-        # Compute working days from date_val to today (exclude Sundays)
         days = 0
-        if isinstance(date_val, dt.date):
-            d = date_val
+        if isinstance(chosen_date, dt.date):
+            d = chosen_date
             step = dt.timedelta(days=1)
             while d < today:
-                if d.weekday() != 6:  # 6 = Sunday
+                if d.weekday() != 6:
                     days += 1
                 d += step
-
-        # Current frequency starts from 0 and increases 1800 per working day
         current_freq = days * 1800
 
         with c5:
             st.write(current_freq)
 
-        # Status column with Yes/No under one header
         with c_status:
             s1, s2 = st.columns(2)
             with s1:
-                key_yes = f"yes_{idx}"
-                yes_val = st.checkbox("", key=key_yes)
-                ss["row_yes"][idx] = yes_val
+                key_yes = f"yes_{df_index}"
+                ss["row_yes"][df_index] = st.checkbox("", key=key_yes)
             with s2:
-                key_no = f"no_{idx}"
-                no_val = st.checkbox("", key=key_no)
-                ss["row_no"][idx] = no_val
+                key_no = f"no_{df_index}"
+                ss["row_no"][df_index] = st.checkbox("", key=key_no)
 
-        # Only show Remarks & Image when Status is No
-        show_extra = ss["row_no"].get(idx, False)
+        show_extra = ss["row_no"].get(df_index, False)
 
         with c9:
             if show_extra:
-                key_rem = f"remark_{idx}"
-                default_rem = ss["row_remarks"].get(idx, "")
-                remark = st.text_input("", value=default_rem, key=key_rem)
-                ss["row_remarks"][idx] = remark
+                key_rem = f"remark_{df_index}"
+                default_rem = ss["row_remarks"].get(df_index, "")
+                ss["row_remarks"][df_index] = st.text_input(
+                    "", value=default_rem, key=key_rem
+                )
             else:
                 st.write("")
 
         with c10:
             if show_extra:
-                key_file = f"file_{idx}"
-                uploaded = st.file_uploader(
+                key_file = f"file_{df_index}"
+                ss["row_files"][df_index] = st.file_uploader(
                     "", type=["jpg", "jpeg", "png"], key=key_file
                 )
-                ss["row_files"][idx] = uploaded
             else:
                 st.write("")
 
     if st.button("Save Audit"):
-        st.success("Audit saved (demo).")
+        for idx, date_val in ss.get("row_change_date", {}).items():
+            if isinstance(date_val, dt.date):
+                df_cfg.loc[idx, date_col] = date_val
 
-# =================================================
-# CONFIGURE PAGE
-# =================================================
+        df_to_save = df_cfg.copy()
+        df_to_save[date_col] = pd.to_datetime(
+            df_to_save[date_col], errors="coerce"
+        ).dt.strftime("%d-%m-%Y")
+        df_to_save[date_col] = df_to_save[date_col].fillna("")
+        df_to_save.to_csv("config_master.csv", index=False)
+
+        st.success("Audit saved.")
+
+# ---------------- CONFIGURE PAGE ----------------
 elif page == "Configure":
     st.title("Configure (view master data)")
     st.write("Master configuration from config_master.csv:")
     st.dataframe(df_cfg, use_container_width=True)
 
-# =================================================
-# AUDIT HISTORY PAGE (placeholder)
-# =================================================
+# ---------------- AUDIT HISTORY PAGE ----------------
 elif page == "Audit History":
     st.title("Audit History")
     st.write("Audit history table will go here.")
