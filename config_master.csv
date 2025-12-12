@@ -1,0 +1,79 @@
+line,sub_assembly,,,kind,fixture_no,station_no,station_name,fixture_part_desc,check_point,qty,frequency_cycles
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 1,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 1 condition -LH)-pallet,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 2 condition -LH)-pallet,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 3 condition -LH)-pallet,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 4 condition -LH)-pallet,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 1 condition -RH)-pallet,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 2 condition -RH)-pallet,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 3 condition -RH)-pallet,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 4 condition -RH)-pallet,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Rest pad condition -pallet,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pallet bottom guide plate condition,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pre guide rest block -LH,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pre guide rest block -LH,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Bottom fixture locating pin-1-LH,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Bottom fixture locating pin-1-RH,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Rest pad condition -Fixture,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pallet guide pin-1 condition,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pallet guide pin-2 condition,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 3,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 4,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 5,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 6,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 7,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 8,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 9,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 10,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 11,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 12,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 13,,,,,,
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 14,,,,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 01,LH CC oil guide pad assembly station,,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Top clamp pad condition-Nylon,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH drive shaft side port seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Cooling side port seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Cooling bottom port seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Y-Gallery seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Oil pump top port seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Cooling top port seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH drive shaft bearing port seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH drive shaft top port seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Oil strainer port seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Counter shaft top port seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Counter shaft bearing port seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Piston jet seal,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,Seals & Adopter condition-8-RH,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,Punch pin condition-LH,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,Punch pin condition-RH,No damage & No loosen,1,45000
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 03,RH CC-Bearing Pressing & LH CC - induction heating station,,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 04,"LH CC - Bearing Press, RH CC Induction heating bearing placing",,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 05,LH CC TOD & RH CC - piston jet & Retainer tightening,,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 06,RH CC TOD station (rotate 180 degree),,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 07,"LH CC oil seal, GSS bearing & oil seal pressing",,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 08,LH CC - circlip pressing & RH CC - oil jet & retainer tightening,,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 09,LH CC - stainer cap tightening & RH CC - oil pump pre-assembly station,,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 10,RH CC - Auto oil pump tightening,,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 11,RH CC striker & stopper bolt tightening,,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 12,LH CC & RH CC Auto QC checking and marking,,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 13,LH CC & RH CC Auto QC checking,,,,
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 14,LH CC & RH CC Loading & Unloading station,,,,
+,,,,,,,,,,,
+,,,,,,,,,,,
+J-Line,Cylinder Head Sub Assembly,,,,SA 34,SA 26A,CH oil circuit Leak test,,,,
+J-Line,Cylinder Head Sub Assembly,,,,SA 33,SA 27,CH stem seal pressing,,,,
+J-Line,Cam Ladder Sub Assembly,,,,SA 21,SA 33,CAM Ladder Checking,,,,
+J-Line,Cam Ladder Sub Assembly,,,,SA 22,SA 50,LH CC - stainer cap tightening & RH CC - oil pump pre-assembly station,,,,
+K-Line,Piston Sub Assembly,,,,Fixture 1,SA 51,RH CC - Auto oil pump tightening,,,,
+K-Line,Barral Sub Assembly,,,,Fixture 2,SA 52,RH CC striker & stopper bolt tightening,,,,
+K-Line,Balancer Shaft Sub Assembly,,,,Fixture 3,SA 53,LH CC - stainer cap tightening & RH CC - oil pump pre-assembly station,,,,
+K-Line,Crankcase Sub Assembly,,,,Fixture 4,SA 54,RH CC - Auto oil pump tightening,,,,
+K-Line,Cylinder Head Sub Assembly,,,,Fixture 5,SA 55,RH CC striker & stopper bolt tightening,,,,
+K-Line,Cam Ladder Sub Assembly,,,,Fixture 6,,,,,,
+,,,,,,,,,,,
+,,,,,,,,,,,
+,,,,,,,,,,,
+,,,,,,,,,,,
+,,,,,,,,,,,
+,,,,,,,,,,,
+,,,,,,,,,,,
