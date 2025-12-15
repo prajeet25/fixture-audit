@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import datetime as dt
+import os
 
 # ---------------- BASIC SETUP ----------------
 st.set_page_config(
@@ -9,8 +10,13 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+MASTER_PATH = "config_master.csv"
+HISTORY_PATH = "audit_history.csv"
+IMAGES_DIR = "images"
+os.makedirs(IMAGES_DIR, exist_ok=True)
+
 # ---------- LOAD MASTER CONFIG ----------
-df_cfg = pd.read_csv("config_master.csv")
+df_cfg = pd.read_csv(MASTER_PATH)
 
 for col in ["qty", "frequency_cycles"]:
     if col in df_cfg.columns:
@@ -60,24 +66,56 @@ def working_cycles_from_date(change_date: dt.date, today: dt.date) -> int:
 def get_due_items():
     today = dt.date.today()
     df_tmp = df_cfg.copy()
-
-    # ignore rows with zero frequency
     df_tmp = df_tmp[df_tmp["frequency_cycles"] > 0]
-
-    # recompute current frequency from date
     df_tmp["current_frequency"] = df_tmp[date_col].apply(
         lambda d: working_cycles_from_date(d, today)
     )
-
     diff = df_tmp["frequency_cycles"] - df_tmp["current_frequency"]
     df_tmp = df_tmp[diff.between(0, THRESHOLD)]
-
-    # keep original row index so we can get the exact component row later
     df_tmp = df_tmp.reset_index().rename(columns={"index": "row_id"})
     df_tmp.insert(0, "S.No", df_tmp.index + 1)
     df_tmp.insert(1, "Audit No", df_tmp["S.No"])
-
     return df_tmp
+
+def get_completed_today_count():
+    """Count audits completed today from history"""
+    if not os.path.exists(HISTORY_PATH):
+        return 0
+    
+    df_hist = pd.read_csv(HISTORY_PATH)
+    if df_hist.empty or "timestamp" not in df_hist.columns:
+        return 0
+    
+    today_str = dt.date.today().strftime("%Y-%m-%d")
+    today_audits = df_hist[
+        df_hist["timestamp"].str.startswith(today_str)
+    ]
+    return len(today_audits)
+
+# ---------- AUDIT HISTORY HELPERS ----------
+def get_next_audit_no() -> int:
+    if not os.path.exists(HISTORY_PATH):
+        return 1
+
+    df_hist = pd.read_csv(HISTORY_PATH)
+
+    if "audit_no" not in df_hist.columns or df_hist.empty:
+        return 1
+
+    nums = pd.to_numeric(df_hist["audit_no"], errors="coerce").dropna()
+    if nums.empty:
+        return 1
+
+    return int(nums.max()) + 1
+
+def append_audit_history(records: list):
+    if not records:
+        return
+    new_df = pd.DataFrame(records)
+    if os.path.exists(HISTORY_PATH):
+        new_df.to_csv(HISTORY_PATH, mode="a", header=False, index=False)
+    else:
+        new_df.to_csv(HISTORY_PATH, mode="w", header=True, index=False)
 
 # ---------- SIDEBAR WITH CLICKABLE BLOCKS ----------
 PAGES = ["Login", "Dashboard", "Components", "Configure", "Audit History"]
@@ -156,6 +194,7 @@ if page == "Login":
     password = st.text_input("Password", type="password")
 
     if st.button("Login"):
+        st.session_state["employee_id"] = username.strip()
         st.success("Login button clicked (demo only, no restriction).")
 
 # ---------------- DASHBOARD PAGE ----------------
@@ -163,12 +202,13 @@ elif page == "Dashboard":
     st.title("Dashboard")
 
     df_due = get_due_items()
+    completed_today = get_completed_today_count()
 
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric("Pending Audits", len(df_due))
     with col2:
-        st.metric("Completed Today", 0)
+        st.metric("Completed Today", completed_today)
     with col3:
         st.metric("Threshold (cycles)", THRESHOLD)
 
@@ -198,7 +238,6 @@ elif page == "Dashboard":
                         key=f"audit_btn_{row_id}",
                         use_container_width=True,
                     ):
-                        # store exact selection and component row, then go to Components
                         st.session_state["page"] = "Components"
                         st.session_state["selected_line"] = line
                         st.session_state["selected_sub_assembly"] = sub_assembly
@@ -210,6 +249,7 @@ elif page == "Dashboard":
                             str(station_no) if pd.notna(station_no) else None
                         )
                         st.session_state["selected_row_id"] = row_id
+                        st.session_state["current_audit_no"] = a_no
                         st.rerun()
                 with c3:
                     st.write(line)
@@ -224,23 +264,21 @@ elif page == "Dashboard":
 elif page == "Components":
     st.title("Components")
 
-    # defaults passed from dashboard
+    current_audit_no = st.session_state.get("current_audit_no", "N/A")
+    st.info(f"**Current Audit: #{current_audit_no}**")
+
     line_default = st.session_state.get("selected_line", None)
     sa_default = st.session_state.get("selected_sub_assembly", None)
     kind_default = st.session_state.get("selected_kind", "Fixture")
     fixture_default = st.session_state.get("selected_fixture_no", None)
     station_default = st.session_state.get("selected_station_no", None)
     selected_row_id = st.session_state.get("selected_row_id", None)
+    employee_id = st.session_state.get("employee_id", "")
 
-    # Line selection
     line_list = sorted(df_cfg["line"].unique())
-    if line_default in line_list:
-        line_index = line_list.index(line_default)
-    else:
-        line_index = 0
+    line_index = line_list.index(line_default) if line_default in line_list else 0
     line = st.selectbox("Line", line_list, index=line_index)
 
-    # Sub-assembly selection; prefer pre-selected value
     sa_options_all = (
         df_cfg[df_cfg["line"] == line]["sub_assembly"]
         .dropna()
@@ -249,13 +287,9 @@ elif page == "Components":
         .tolist()
     )
     sa_list = sorted(sa_options_all)
-    if sa_default in sa_list:
-        sa_index = sa_list.index(sa_default)
-    else:
-        sa_index = 0
+    sa_index = sa_list.index(sa_default) if sa_default in sa_list else 0
     sub_assembly = st.selectbox("Sub Assembly", sa_list, index=sa_index)
 
-    # Kind
     kind = st.radio(
         "What do you want to change?", ["Fixture", "Tool"],
         index=0 if kind_default == "Fixture" else 1,
@@ -267,79 +301,67 @@ elif page == "Components":
         & (df_cfg["kind"] == kind)
     ]
 
-    # Fixture / Station selection
     if kind == "Fixture":
         fixture_options = base_subset["fixture_no"].dropna().astype(str).unique().tolist()
-        if fixture_default in fixture_options:
-            f_index = fixture_options.index(fixture_default)
-        else:
-            f_index = 0
+        f_index = fixture_options.index(fixture_default) if fixture_default in fixture_options else 0
         fixture = st.selectbox("Fixture No.", fixture_options, index=f_index)
         check_subset = base_subset[base_subset["fixture_no"].astype(str) == fixture]
         st.write(f"Selected fixture: {fixture}")
+        station = ""
     else:
         station_options = base_subset["station_no"].dropna().astype(str).unique().tolist()
-        if station_default in station_options:
-            s_index = station_options.index(station_default)
-        else:
-            s_index = 0
+        s_index = station_options.index(station_default) if station_default in station_options else 0
         station = st.selectbox("Station No.", station_options, index=s_index)
         check_subset = base_subset[base_subset["station_no"].astype(str) == station]
         station_name = str(check_subset["station_name"].iloc[0])
         st.write(f"Selected station: {station} – {station_name}")
+        fixture = ""
 
-    # If we came from dashboard with a specific component row, filter to that row only
     if selected_row_id is not None and selected_row_id in check_subset.index:
         check_subset = check_subset.loc[[selected_row_id]]
 
     st.divider()
     st.subheader("Checklist")
 
-    base_cols = ["fixture_part_desc", "check_point", "qty", "frequency_cycles"]
+    base_cols = ["fixture_part_desc", "check_point", "qty"]
     table = check_subset[base_cols].rename(
         columns={
             "fixture_part_desc": "Fixture Part description",
             "check_point": "Check point",
             "qty": "Qty",
-            "frequency_cycles": "Frequency (cycles)",
         }
     ).reset_index(drop=True)
 
-    h0, h1, h2, h3, h4, h5, h_status, h8, h9, h10 = st.columns(
-        [0.7, 3, 3, 0.7, 1.4, 1.6, 1.2, 1.8, 2.0, 2.0]
+    h0, h1, h2, h3, h_status, h8, h9, h10 = st.columns(
+        [0.7, 3.5, 3, 0.8, 1.8, 1.8, 2.0, 2.4]
     )
-    h0.write("**S.N o**")
+    h0.write("**S.No**")
     h1.write("**Fixture Part description**")
     h2.write("**Check point**")
-    h3.write("**Qty**")
-    h4.write("**Frequency (cycles)**")
-    h5.write("**Current Frequency (cycles)**")
+    h3.write("**Quantity**")
     with h_status:
         st.write("**Status**")
-        s1, s2 = st.columns(2)
-        with s1:
-            st.write("**Yes**")
-        with s2:
-            st.write("**No**")
     h8.write("**Changed before Date**")
     h9.write("**Remarks**")
     h10.write("**Image**")
 
     ss = st.session_state
-    ss.setdefault("row_yes", {})
-    ss.setdefault("row_no", {})
+    ss.setdefault("row_status", {})
     ss.setdefault("row_change_date", {})
     ss.setdefault("row_remarks", {})
-    ss.setdefault("row_files", {})
+    ss.setdefault("row_image_mode", {})
+    ss.setdefault("row_image_path", {})
 
     today = dt.date.today()
     original_indices = check_subset.index.to_list()
+    history_rows = []
+    audit_no = current_audit_no
 
     for local_idx, row in table.iterrows():
         df_index = original_indices[local_idx]
 
-        c0, c1, c2, c3, c4, c5, c_status, c8, c9, c10 = st.columns(
-            [0.7, 3, 3, 0.7, 1.4, 1.6, 1.2, 1.8, 2.0, 2.0]
+        c0, c1, c2, c3, c_status, c8, c9, c10 = st.columns(
+            [0.7, 3.5, 3, 0.8, 1.8, 1.8, 2.0, 2.4]
         )
 
         with c0:
@@ -351,8 +373,6 @@ elif page == "Components":
             st.write(row["Check point"])
         with c3:
             st.write(int(row["Qty"]))
-        with c4:
-            st.write(int(row["Frequency (cycles)"]))
 
         csv_date = df_cfg.loc[df_index, date_col] if date_col in df_cfg.columns else None
         default_date = csv_date if isinstance(csv_date, dt.date) else today
@@ -362,29 +382,19 @@ elif page == "Components":
             chosen_date = st.date_input("", value=default_date, key=key_dt)
             ss["row_change_date"][df_index] = chosen_date
 
-        days = 0
-        if isinstance(chosen_date, dt.date):
-            d = chosen_date
-            step = dt.timedelta(days=1)
-            while d < today:
-                if d.weekday() != 6:
-                    days += 1
-                d += step
-        current_freq = days * 1800
-
-        with c5:
-            st.write(current_freq)
-
         with c_status:
-            s1, s2 = st.columns(2)
-            with s1:
-                key_yes = f"yes_{df_index}"
-                ss["row_yes"][df_index] = st.checkbox("", key=key_yes)
-            with s2:
-                key_no = f"no_{df_index}"
-                ss["row_no"][df_index] = st.checkbox("", key=key_no)
+            current_status = ss["row_status"].get(df_index, "Yes")
+            status = st.radio(
+                " ",
+                options=["Yes", "No"],
+                index=0 if current_status == "Yes" else 1,
+                key=f"status_{df_index}",
+                horizontal=True,
+                label_visibility="collapsed",
+            )
+            ss["row_status"][df_index] = status
 
-        show_extra = ss["row_no"].get(df_index, False)
+        show_extra = (ss["row_status"][df_index] == "No")
 
         with c9:
             if show_extra:
@@ -396,28 +406,121 @@ elif page == "Components":
             else:
                 st.write("")
 
+        img_path = ss["row_image_path"].get(df_index, "")
+
         with c10:
             if show_extra:
-                key_file = f"file_{df_index}"
-                ss["row_files"][df_index] = st.file_uploader(
-                    "", type=["jpg", "jpeg", "png"], key=key_file
+                mode_key = f"img_mode_{df_index}"
+                current_mode = ss["row_image_mode"].get(df_index, "Upload")
+                mode = st.radio(
+                    " ",
+                    ["Upload", "Camera"],
+                    index=0 if current_mode == "Upload" else 1,
+                    key=mode_key,
+                    horizontal=True,
+                    label_visibility="collapsed",
                 )
+                ss["row_image_mode"][df_index] = mode
+
+                base_name = f"audit_{audit_no}_row_{local_idx + 1}.jpg"
+                full_path = os.path.join(IMAGES_DIR, base_name)
+
+                if mode == "Upload":
+                    file_key = f"file_{df_index}"
+                    uploaded = st.file_uploader(
+                        "",
+                        type=["jpg", "jpeg", "png"],
+                        key=file_key,
+                    )
+                    if uploaded is not None:
+                        with open(full_path, "wb") as f:
+                            f.write(uploaded.getbuffer())
+                        img_path = full_path
+                else:
+                    cam_key = f"cam_{df_index}"
+                    photo = st.camera_input(
+                        "",
+                        key=cam_key,
+                    )
+                    if photo is not None:
+                        with open(full_path, "wb") as f:
+                            f.write(photo.getvalue())
+                        img_path = full_path
+
+                ss["row_image_path"][df_index] = img_path
+
+                if img_path:
+                    st.write(os.path.basename(img_path))
             else:
                 st.write("")
 
+        history_rows.append(
+            {
+                "timestamp": dt.datetime.now().isoformat(timespec="seconds"),
+                "audit_no": audit_no,
+                "employee_id": employee_id,
+                "line": line,
+                "sub_assembly": sub_assembly,
+                "kind": kind,
+                "fixture_no": fixture if kind == "Fixture" else "",
+                "station_no": station if kind != "Fixture" else "",
+                "fixture_part_desc": row["Fixture Part description"],
+                "check_point": row["Check point"],
+                "qty": int(row["Qty"]),
+                "status": ss["row_status"].get(df_index, ""),
+                "changed_before_date": chosen_date.strftime("%d-%m-%Y")
+                if isinstance(chosen_date, dt.date)
+                else "",
+                "remarks": ss["row_remarks"].get(df_index, ""),
+                "image_info": img_path,
+            }
+        )
+
+    # ✅ FIXED: Save ALL items to remove from dashboard
     if st.button("Save Audit"):
-        for idx, date_val in ss.get("row_change_date", {}).items():
+        # Get ALL audited items (Yes + No)
+        audited_items = []
+        for idx in original_indices:
+            if idx in ss.get("row_status", {}):
+                audited_items.append(idx)
+        
+        if not audited_items:
+            st.warning("No items to audit.")
+            st.rerun()
+        
+        # ✅ UPDATE ALL ITEMS (Yes + No) - removes from dashboard
+        for idx in audited_items:
+            date_val = ss.get("row_change_date", {}).get(idx)
             if isinstance(date_val, dt.date):
                 df_cfg.loc[idx, date_col] = date_val
-
+        
+        # Log ONLY "No" issues to history
+        filtered_history = [r for r in history_rows if r["status"] == "No"]
+        
+        # Save master config
         df_to_save = df_cfg.copy()
         df_to_save[date_col] = pd.to_datetime(
             df_to_save[date_col], errors="coerce"
         ).dt.strftime("%d-%m-%Y")
         df_to_save[date_col] = df_to_save[date_col].fillna("")
-        df_to_save.to_csv("config_master.csv", index=False)
-
-        st.success("Audit saved.")
+        df_to_save.to_csv(MASTER_PATH, index=False)
+        
+        append_audit_history(filtered_history)
+        
+        total_items = len(audited_items)
+        issues_found = len(filtered_history)
+        st.success(f"Audit #{audit_no} completed! {total_items} items checked, {issues_found} issues logged")
+        
+        # Clear session and return to dashboard
+        for key in ["selected_line", "selected_sub_assembly", "selected_kind", 
+                   "selected_fixture_no", "selected_station_no", "selected_row_id", 
+                   "current_audit_no", "row_status", "row_change_date", "row_remarks",
+                   "row_image_mode", "row_image_path"]:
+            if key in st.session_state:
+                del st.session_state[key]
+        
+        st.session_state["page"] = "Dashboard"
+        st.rerun()
 
 # ---------------- CONFIGURE PAGE ----------------
 elif page == "Configure":
@@ -428,4 +531,33 @@ elif page == "Configure":
 # ---------------- AUDIT HISTORY PAGE ----------------
 elif page == "Audit History":
     st.title("Audit History")
-    st.write("Audit history table will go here.")
+    if os.path.exists(HISTORY_PATH):
+        df_hist = pd.read_csv(HISTORY_PATH)
+        if df_hist.empty:
+            st.write("No audits recorded yet.")
+        else:
+            for i, row in df_hist.iterrows():
+                c1, c2, c3, c4, c5, c6 = st.columns([0.8, 3.0, 2.2, 2.0, 2.0, 2.0])
+                with c1:
+                    st.write(f"**#{row.get('audit_no', '')}**")
+                with c2:
+                    fixture_desc = row.get('fixture_part_desc', '')
+                    st.write(f"**Fixture:** {fixture_desc if fixture_desc else 'N/A'}")
+                with c3:
+                    st.write(f"**Line:** {row.get('line', '')}")
+                with c4:
+                    status = row.get('status', '')
+                    st.write(f"**Status:** {status}")
+                with c5:
+                    remarks = row.get('remarks', '')
+                    st.write(f"**Remarks:** {remarks if remarks else 'N/A'}")
+                with c6:
+                    img_path = str(row.get("image_info", ""))
+                    if img_path and os.path.exists(img_path):
+                        if st.button("📷 View Image", key=f"hist_view_{i}"):
+                            st.image(img_path, caption=f"Audit {row.get('audit_no', '')} - {row.get('fixture_part_desc', '')}")
+                    else:
+                        st.write("❌ No image")
+                st.divider()
+    else:
+        st.write("No audits recorded yet.")
