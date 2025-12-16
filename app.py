@@ -3,6 +3,7 @@ import pandas as pd
 import datetime as dt
 import os
 
+
 # ---------------- BASIC SETUP ----------------
 st.set_page_config(
     page_title="Fixture Audit System",
@@ -14,6 +15,7 @@ MASTER_PATH = "config_master.csv"
 HISTORY_PATH = "audit_history.csv"
 IMAGES_DIR = "images"
 os.makedirs(IMAGES_DIR, exist_ok=True)
+
 
 # ---------- LOAD MASTER CONFIG ----------
 df_cfg = pd.read_csv(MASTER_PATH)
@@ -34,6 +36,7 @@ df_cfg["line"] = df_cfg["line"].astype(str)
 df_cfg["sub_assembly"] = df_cfg["sub_assembly"].astype(str)
 df_cfg["kind"] = df_cfg["kind"].astype(str)
 
+
 # ---------- GLOBAL SIDEBAR CSS ----------
 st.markdown(
     """
@@ -48,8 +51,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
 # ---------- DASHBOARD HELPERS ----------
 THRESHOLD = 5000  # cycles
+
 
 def working_cycles_from_date(change_date: dt.date, today: dt.date) -> int:
     if not isinstance(change_date, dt.date):
@@ -62,6 +67,7 @@ def working_cycles_from_date(change_date: dt.date, today: dt.date) -> int:
             days += 1
         d += step
     return days * 1800
+
 
 def get_due_items():
     today = dt.date.today()
@@ -77,20 +83,20 @@ def get_due_items():
     df_tmp.insert(1, "Audit No", df_tmp["S.No"])
     return df_tmp
 
+
 def get_completed_today_count():
     """Count audits completed today from history"""
     if not os.path.exists(HISTORY_PATH):
         return 0
-    
+
     df_hist = pd.read_csv(HISTORY_PATH)
     if df_hist.empty or "timestamp" not in df_hist.columns:
         return 0
-    
+
     today_str = dt.date.today().strftime("%Y-%m-%d")
-    today_audits = df_hist[
-        df_hist["timestamp"].str.startswith(today_str)
-    ]
+    today_audits = df_hist[df_hist["timestamp"].str.startswith(today_str)]
     return len(today_audits)
+
 
 # ---------- AUDIT HISTORY HELPERS ----------
 def get_next_audit_no() -> int:
@@ -108,6 +114,7 @@ def get_next_audit_no() -> int:
 
     return int(nums.max()) + 1
 
+
 def append_audit_history(records: list):
     if not records:
         return
@@ -117,11 +124,13 @@ def append_audit_history(records: list):
     else:
         new_df.to_csv(HISTORY_PATH, mode="w", header=True, index=False)
 
+
 # ---------- SIDEBAR WITH CLICKABLE BLOCKS ----------
 PAGES = ["Login", "Dashboard", "Components", "Configure", "Audit History"]
 
 if "page" not in st.session_state:
     st.session_state["page"] = "Login"
+
 
 def nav_card(label: str, danger: bool = False):
     is_active = st.session_state["page"] == label
@@ -160,6 +169,7 @@ def nav_card(label: str, danger: bool = False):
         unsafe_allow_html=True,
     )
 
+
 with st.sidebar:
     st.markdown(
         """
@@ -183,7 +193,9 @@ with st.sidebar:
     )
     nav_card("Logout", danger=True)
 
+
 page = st.session_state["page"]
+
 
 # ---------------- LOGIN PAGE ----------------
 if page == "Login":
@@ -196,6 +208,7 @@ if page == "Login":
     if st.button("Login"):
         st.session_state["employee_id"] = username.strip()
         st.success("Login button clicked (demo only, no restriction).")
+
 
 # ---------------- DASHBOARD PAGE ----------------
 elif page == "Dashboard":
@@ -260,12 +273,19 @@ elif page == "Dashboard":
                 with c6:
                     st.write(row.get("fixture_part_desc", ""))
 
+
 # ---------------- COMPONENTS PAGE ----------------
 elif page == "Components":
     st.title("Components")
 
-    current_audit_no = st.session_state.get("current_audit_no", "N/A")
-    st.info(f"**Current Audit: #{current_audit_no}**")
+    # ensure audit_no is always numeric and unique (if not coming from dashboard)
+    current_audit_no = st.session_state.get("current_audit_no", None)
+    if current_audit_no is None:
+        current_audit_no = get_next_audit_no()
+        st.session_state["current_audit_no"] = current_audit_no
+    audit_no = current_audit_no
+
+    st.info(f"**Current Audit: #{audit_no}**")
 
     line_default = st.session_state.get("selected_line", None)
     sa_default = st.session_state.get("selected_sub_assembly", None)
@@ -323,22 +343,38 @@ elif page == "Components":
     st.divider()
     st.subheader("Checklist")
 
-    base_cols = ["fixture_part_desc", "check_point", "qty"]
-    table = check_subset[base_cols].rename(
+    # ---- frequency and current frequency (per-row, used in table) ----
+    today = dt.date.today()
+
+    def row_current_freq(idx):
+        change_date = df_cfg.loc[idx, date_col] if date_col in df_cfg.columns else None
+        return working_cycles_from_date(change_date, today)
+
+    base_cols = ["fixture_part_desc", "check_point", "qty", "frequency_cycles"]
+    table = check_subset[base_cols].copy()
+    table["current_frequency"] = [
+        row_current_freq(idx) for idx in check_subset.index
+    ]
+
+    table = table.rename(
         columns={
             "fixture_part_desc": "Fixture Part description",
             "check_point": "Check point",
             "qty": "Qty",
+            "frequency_cycles": "Frequency (cycles)",
+            "current_frequency": "Current frequency",
         }
     ).reset_index(drop=True)
 
-    h0, h1, h2, h3, h_status, h8, h9, h10 = st.columns(
-        [0.7, 3.5, 3, 0.8, 1.8, 1.8, 2.0, 2.4]
+    h0, h1, h2, h3, h4, h5, h_status, h8, h9, h10 = st.columns(
+        [0.7, 3.5, 3, 0.8, 1.6, 1.8, 1.6, 1.8, 2.0, 2.4]
     )
     h0.write("**S.No**")
     h1.write("**Fixture Part description**")
     h2.write("**Check point**")
     h3.write("**Quantity**")
+    h4.write("**Frequency (cycles)**")
+    h5.write("**Current frequency**")
     with h_status:
         st.write("**Status**")
     h8.write("**Changed before Date**")
@@ -352,16 +388,14 @@ elif page == "Components":
     ss.setdefault("row_image_mode", {})
     ss.setdefault("row_image_path", {})
 
-    today = dt.date.today()
     original_indices = check_subset.index.to_list()
     history_rows = []
-    audit_no = current_audit_no
 
     for local_idx, row in table.iterrows():
         df_index = original_indices[local_idx]
 
-        c0, c1, c2, c3, c_status, c8, c9, c10 = st.columns(
-            [0.7, 3.5, 3, 0.8, 1.8, 1.8, 2.0, 2.4]
+        c0, c1, c2, c3, c4, c5, c_status, c8, c9, c10 = st.columns(
+            [0.7, 3.5, 3, 0.8, 1.6, 1.8, 1.6, 1.8, 2.0, 2.4]
         )
 
         with c0:
@@ -373,6 +407,10 @@ elif page == "Components":
             st.write(row["Check point"])
         with c3:
             st.write(int(row["Qty"]))
+        with c4:
+            st.write(int(row["Frequency (cycles)"]))
+        with c5:
+            st.write(int(row["Current frequency"]))
 
         csv_date = df_cfg.loc[df_index, date_col] if date_col in df_cfg.columns else None
         default_date = csv_date if isinstance(csv_date, dt.date) else today
@@ -476,57 +514,69 @@ elif page == "Components":
             }
         )
 
-    # ✅ FIXED: Save ALL items to remove from dashboard
+    # Save all audited items and remove from dashboard
     if st.button("Save Audit"):
-        # Get ALL audited items (Yes + No)
         audited_items = []
         for idx in original_indices:
             if idx in ss.get("row_status", {}):
                 audited_items.append(idx)
-        
+
         if not audited_items:
             st.warning("No items to audit.")
             st.rerun()
-        
-        # ✅ UPDATE ALL ITEMS (Yes + No) - removes from dashboard
+
+        # update Changed before date for all audited items
         for idx in audited_items:
             date_val = ss.get("row_change_date", {}).get(idx)
             if isinstance(date_val, dt.date):
                 df_cfg.loc[idx, date_col] = date_val
-        
-        # Log ONLY "No" issues to history
+
+        # only "No" rows go to audit history
         filtered_history = [r for r in history_rows if r["status"] == "No"]
-        
-        # Save master config
+
         df_to_save = df_cfg.copy()
         df_to_save[date_col] = pd.to_datetime(
             df_to_save[date_col], errors="coerce"
         ).dt.strftime("%d-%m-%Y")
         df_to_save[date_col] = df_to_save[date_col].fillna("")
         df_to_save.to_csv(MASTER_PATH, index=False)
-        
+
         append_audit_history(filtered_history)
-        
+
         total_items = len(audited_items)
         issues_found = len(filtered_history)
-        st.success(f"Audit #{audit_no} completed! {total_items} items checked, {issues_found} issues logged")
-        
+        st.success(
+            f"Audit #{audit_no} completed! {total_items} items checked, {issues_found} issues logged"
+        )
+
         # Clear session and return to dashboard
-        for key in ["selected_line", "selected_sub_assembly", "selected_kind", 
-                   "selected_fixture_no", "selected_station_no", "selected_row_id", 
-                   "current_audit_no", "row_status", "row_change_date", "row_remarks",
-                   "row_image_mode", "row_image_path"]:
+        for key in [
+            "selected_line",
+            "selected_sub_assembly",
+            "selected_kind",
+            "selected_fixture_no",
+            "selected_station_no",
+            "selected_row_id",
+            "current_audit_no",
+            "row_status",
+            "row_change_date",
+            "row_remarks",
+            "row_image_mode",
+            "row_image_path",
+        ]:
             if key in st.session_state:
                 del st.session_state[key]
-        
+
         st.session_state["page"] = "Dashboard"
         st.rerun()
+
 
 # ---------------- CONFIGURE PAGE ----------------
 elif page == "Configure":
     st.title("Configure (view master data)")
     st.write("Master configuration from config_master.csv:")
     st.dataframe(df_cfg, use_container_width=True)
+
 
 # ---------------- AUDIT HISTORY PAGE ----------------
 elif page == "Audit History":
@@ -537,27 +587,34 @@ elif page == "Audit History":
             st.write("No audits recorded yet.")
         else:
             for i, row in df_hist.iterrows():
-                c1, c2, c3, c4, c5, c6 = st.columns([0.8, 3.0, 2.2, 2.0, 2.0, 2.0])
-                with c1:
-                    st.write(f"**#{row.get('audit_no', '')}**")
-                with c2:
-                    fixture_desc = row.get('fixture_part_desc', '')
-                    st.write(f"**Fixture:** {fixture_desc if fixture_desc else 'N/A'}")
-                with c3:
-                    st.write(f"**Line:** {row.get('line', '')}")
-                with c4:
-                    status = row.get('status', '')
-                    st.write(f"**Status:** {status}")
-                with c5:
-                    remarks = row.get('remarks', '')
-                    st.write(f"**Remarks:** {remarks if remarks else 'N/A'}")
-                with c6:
+                # S.No, Audit No, Fixture, Line, Status, Remarks, Image
+                c_sn, c_aud, c_fix, c_line, c_stat, c_rem, c_img = st.columns(
+                    [0.7, 1.0, 3.0, 2.0, 1.4, 2.5, 2.0]
+                )
+                with c_sn:
+                    st.write(i + 1)  # serial number
+                with c_aud:
+                    st.write(f"#{row.get('audit_no', '')}")
+                with c_fix:
+                    fixture_desc = row.get("fixture_part_desc", "")
+                    st.write(f"Fixture: {fixture_desc if fixture_desc else 'N/A'}")
+                with c_line:
+                    st.write(f"Line: {row.get('line', '')}")
+                with c_stat:
+                    st.write(f"Status: {row.get('status', '')}")
+                with c_rem:
+                    remarks = row.get("remarks", "")
+                    st.write(f"Remarks: {remarks if remarks else 'N/A'}")
+                with c_img:
                     img_path = str(row.get("image_info", ""))
                     if img_path and os.path.exists(img_path):
                         if st.button("📷 View Image", key=f"hist_view_{i}"):
-                            st.image(img_path, caption=f"Audit {row.get('audit_no', '')} - {row.get('fixture_part_desc', '')}")
+                            st.image(
+                                img_path,
+                                caption=f"Audit {row.get('audit_no', '')} - {row.get('fixture_part_desc', '')}",
+                            )
                     else:
-                        st.write("❌ No image")
+                        st.write("No image")
                 st.divider()
     else:
         st.write("No audits recorded yet.")
