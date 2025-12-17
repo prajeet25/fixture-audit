@@ -1,1 +1,2 @@
 ﻿timestamp,audit_no,employee_id,line,sub_assembly,kind,fixture_no,station_no,fixture_part_desc,check_point,qty,status,changed_before_date,remarks,image_info
+2025-12-17T12:44:17,1,,J-Line,Crankcase Sub Assembly,Fixture,Fixture 2,,Locating pin 1 condition -LH)-pallet,No damage & No loosen,1,No,19-11-2025,new,images\audit_1_row_1.jpg

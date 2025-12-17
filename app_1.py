@@ -3,7 +3,6 @@ import pandas as pd
 import datetime as dt
 import os
 
-
 # ---------------- BASIC SETUP ----------------
 st.set_page_config(
     page_title="Fixture Audit System",
@@ -15,7 +14,6 @@ MASTER_PATH = "config_master.csv"
 HISTORY_PATH = "audit_history.csv"
 IMAGES_DIR = "images"
 os.makedirs(IMAGES_DIR, exist_ok=True)
-
 
 # ---------- NEW DARK-CYAN THEME CSS ----------
 st.markdown(
@@ -35,21 +33,18 @@ st.markdown(
         --border-soft: #1f2937;
     }
 
-    /* Overall app background and font */
     .stApp {
         background: radial-gradient(circle at top left, #1e293b 0, #020617 50%, #020617 100%);
         color: var(--text-main);
         font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
     }
 
-    /* Main page container */
     .block-container {
         padding-top: 1.5rem;
         padding-bottom: 2.0rem;
         max-width: 1200px;
     }
 
-    /* Headings */
     h1 {
         font-size: 2.3rem;
         font-weight: 700;
@@ -61,7 +56,6 @@ st.markdown(
         font-weight: 600;
     }
 
-    /* Dashboard cards */
     [data-testid="stMetric"] {
         background: linear-gradient(135deg, #111827, #020617);
         border-radius: 14px;
@@ -82,13 +76,11 @@ st.markdown(
         font-size: 0.75rem;
     }
 
-    /* Sidebar layout */
     [data-testid="stSidebar"] {
         background: #020617;
         border-right: 1px solid #1f2937;
     }
 
-    /* Hide sidebar + hamburger on login page */
     .hide-sidebar [data-testid="stSidebar"] {
         display: none;
     }
@@ -96,7 +88,6 @@ st.markdown(
         display: none;
     }
 
-    /* Sidebar title and subtitle */
     .sidebar-title {
         font-size: 1.4rem;
         font-weight: 700;
@@ -109,7 +100,6 @@ st.markdown(
         margin-bottom: 0.7rem;
     }
 
-    /* Default sidebar buttons */
     div[data-testid="stSidebar"] div[data-testid="stButton"] > button {
         background: #020617;
         color: var(--text-main);
@@ -125,15 +115,14 @@ st.markdown(
         color: #f9fafb;
     }
 
-    /* Login card */
     .login-card {
         max-width: 520px;
         margin: 3rem auto 0 auto;
-        padding: 2.0rem 2.1rem 2.2rem 2.1rem;
-        background: radial-gradient(circle at top left, #1e293b 0, #020617 65%);
-        border-radius: 16px;
-        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.9);
-        border: 1px solid #1f2937;
+        padding: 0;
+        background: transparent;
+        border-radius: 0;
+        box-shadow: none;
+        border: none;
     }
     .login-title {
         font-size: 2.1rem;
@@ -147,7 +136,6 @@ st.markdown(
         margin-bottom: 1.4rem;
     }
 
-    /* Text input labels and fields */
     .stTextInput > label {
         font-weight: 500;
         color: var(--text-main);
@@ -163,7 +151,6 @@ st.markdown(
         box-shadow: 0 0 0 1px var(--accent-soft);
     }
 
-    /* Primary buttons in main area */
     button[kind="primary"] {
         background: linear-gradient(135deg, var(--accent), var(--accent-strong)) !important;
         color: #0b1120 !important;
@@ -180,7 +167,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
 
 # ---------- LOAD MASTER CONFIG ----------
 df_cfg = pd.read_csv(MASTER_PATH)
@@ -200,7 +186,6 @@ if date_col in df_cfg.columns:
 df_cfg["line"] = df_cfg["line"].astype(str)
 df_cfg["sub_assembly"] = df_cfg["sub_assembly"].astype(str)
 df_cfg["kind"] = df_cfg["kind"].astype(str)
-
 
 # ---------- DASHBOARD HELPERS ----------
 THRESHOLD = 5000  # cycles
@@ -244,7 +229,6 @@ def get_completed_today_count():
     today_audits = df_hist[df_hist["timestamp"].str.startswith(today_str)]
     return len(today_audits)
 
-
 # ---------- AUDIT HISTORY HELPERS ----------
 def get_next_audit_no() -> int:
     if not os.path.exists(HISTORY_PATH):
@@ -266,7 +250,6 @@ def append_audit_history(records: list):
         new_df.to_csv(HISTORY_PATH, mode="a", header=False, index=False)
     else:
         new_df.to_csv(HISTORY_PATH, mode="w", header=True, index=False)
-
 
 # ---------- PAGE / NAV STATE ----------
 PAGES = ["Dashboard", "Components", "Configure", "Audit History"]
@@ -318,7 +301,6 @@ def nav_card(label: str, danger: bool = False):
         unsafe_allow_html=True,
     )
 
-
 # ---------- SIDEBAR (ONLY AFTER LOGIN) ----------
 if page != "Login":
     with st.sidebar:
@@ -351,32 +333,10 @@ else:
         unsafe_allow_html=True,
     )
 
-
-# ---------------- LOGIN PAGE ----------------
 # ---------------- LOGIN PAGE ----------------
 if page == "Login":
-    # make the card invisible (no box), just a layout container
-    st.markdown(
-        """
-        <style>
-        .login-card {
-            max-width: 520px;
-            margin: 3rem auto 0 auto;
-            padding: 0;                 /* no internal box padding */
-            background: transparent;     /* remove visible rectangle */
-            border-radius: 0;            /* no rounded border */
-            border: none;                /* no border */
-            box-shadow: none;            /* no shadow */
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # open card container (now invisible)
     st.markdown("<div class='login-card'>", unsafe_allow_html=True)
 
-    # big centered text at the top
     st.markdown(
         """
         <div style="
@@ -399,9 +359,7 @@ if page == "Login":
         unsafe_allow_html=True,
     )
 
-    # main title under the block
     st.markdown("<div class='login-title'>Royal Enfield</div>", unsafe_allow_html=True)
-
     st.markdown(
         "<div class='login-subtitle'>Please sign in to continue.</div>",
         unsafe_allow_html=True,
@@ -415,7 +373,6 @@ if page == "Login":
         st.session_state["page"] = "Dashboard"
         st.rerun()
 
-    # close card container
     st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------------- DASHBOARD PAGE ----------------
@@ -480,7 +437,6 @@ elif page == "Dashboard":
                     st.write(kind)
                 with c6:
                     st.write(row.get("fixture_part_desc", ""))
-
 
 # ---------------- COMPONENTS PAGE ----------------
 elif page == "Components":
@@ -718,6 +674,7 @@ elif page == "Components":
             }
         )
 
+    # --------- UPDATED SAVE AUDIT LOGIC ---------
     if st.button("Save Audit"):
         audited_items = []
         for idx in original_indices:
@@ -728,10 +685,17 @@ elif page == "Components":
             st.warning("No items to audit.")
             st.rerun()
 
+        today = dt.date.today()
+
         for idx in audited_items:
-            date_val = ss.get("row_change_date", {}).get(idx)
-            if isinstance(date_val, dt.date):
-                df_cfg.loc[idx, date_col] = date_val
+            status_val = ss.get("row_status", {}).get(idx, "Yes")
+            if status_val == "No":
+                df_cfg.loc[idx, date_col] = today
+                ss["row_change_date"][idx] = today
+            else:
+                date_val = ss.get("row_change_date", {}).get(idx)
+                if isinstance(date_val, dt.date):
+                    df_cfg.loc[idx, date_col] = date_val
 
         filtered_history = [r for r in history_rows if r["status"] == "No"]
 
@@ -770,13 +734,11 @@ elif page == "Components":
         st.session_state["page"] = "Dashboard"
         st.rerun()
 
-
 # ---------------- CONFIGURE PAGE ----------------
 elif page == "Configure":
     st.title("Configure (view master data)")
     st.write("Master configuration from config_master.csv:")
     st.dataframe(df_cfg, use_container_width=True)
-
 
 # ---------------- AUDIT HISTORY PAGE ----------------
 elif page == "Audit History":
