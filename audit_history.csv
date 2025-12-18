@@ -1,3 +1,4 @@
 ﻿timestamp,audit_no,employee_id,line,sub_assembly,kind,fixture_no,station_no,fixture_part_desc,check_point,qty,status,changed_before_date,remarks,image_info
 2025-12-17T12:44:17,1,,J-Line,Crankcase Sub Assembly,Fixture,Fixture 2,,Locating pin 1 condition -LH)-pallet,No damage & No loosen,1,No,19-11-2025,new,images\audit_1_row_1.jpg
 2025-12-17T15:50:06,2,,J-Line,Crankcase Sub Assembly,Fixture,Fixture 2,,Locating pin 2 condition -LH)-pallet,No damage & No loosen,1,No,01-12-2025,szgdxhfcgjv,images\audit_2_row_2.jpg
+2025-12-18T08:49:46,4,,J-Line,Crankcase Sub Assembly,Tool,,SA 02,RH Cooling bottom port seal,No damage & No loosen,1,No,20-11-2025,cefverbv,images\audit_4_row_1.jpg
