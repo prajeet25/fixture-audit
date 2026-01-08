@@ -3,9 +3,6 @@ import pandas as pd
 import datetime as dt
 import os
 
-
-
-
 # ---------------- BASIC SETUP ----------------
 st.set_page_config(
     page_title="Fixture Audit System",
@@ -13,22 +10,16 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-
-
 MASTER_PATH = "config_master.csv"
 HISTORY_PATH = "audit_history.csv"
 IMAGES_DIR = "images"
 os.makedirs(IMAGES_DIR, exist_ok=True)
-
-
-
 
 # ---------- NEW DARK-CYAN THEME CSS ----------
 st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
 
     :root {
         --bg-main: #020617;
@@ -42,20 +33,17 @@ st.markdown(
         --border-soft: #1f2937;
     }
 
-
     .stApp {
         background: radial-gradient(circle at top left, #1e293b 0, #020617 50%, #020617 100%);
         color: var(--text-main);
         font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Roboto", sans-serif;
     }
 
-
     .block-container {
         padding-top: 1.5rem;
         padding-bottom: 2.0rem;
         max-width: 1200px;
     }
-
 
     h1 {
         font-size: 2.3rem;
@@ -67,7 +55,6 @@ st.markdown(
         color: #f9fafb;
         font-weight: 600;
     }
-
 
     [data-testid="stMetric"] {
         background: linear-gradient(135deg, #111827, #020617);
@@ -89,12 +76,10 @@ st.markdown(
         font-size: 0.75rem;
     }
 
-
     [data-testid="stSidebar"] {
         background: #020617;
         border-right: 1px solid #1f2937;
     }
-
 
     .hide-sidebar [data-testid="stSidebar"] {
         display: none;
@@ -102,7 +87,6 @@ st.markdown(
     .hide-sidebar [data-testid="collapsedControl"] {
         display: none;
     }
-
 
     .sidebar-title {
         font-size: 1.4rem;
@@ -115,7 +99,6 @@ st.markdown(
         color: var(--text-muted);
         margin-bottom: 0.7rem;
     }
-
 
     div[data-testid="stSidebar"] div[data-testid="stButton"] > button {
         background: #020617;
@@ -131,7 +114,6 @@ st.markdown(
         border-color: var(--accent);
         color: #f9fafb;
     }
-
 
     .login-card {
         max-width: 520px;
@@ -154,7 +136,6 @@ st.markdown(
         margin-bottom: 1.4rem;
     }
 
-
     .stTextInput > label {
         font-weight: 500;
         color: var(--text-main);
@@ -169,7 +150,6 @@ st.markdown(
         border-color: var(--accent);
         box-shadow: 0 0 0 1px var(--accent-soft);
     }
-
 
     button[kind="primary"] {
         background: linear-gradient(135deg, var(--accent), var(--accent-strong)) !important;
@@ -188,9 +168,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
-
-
 # ---------- LOAD MASTER CONFIG ----------
 df_cfg = pd.read_csv(MASTER_PATH)
 
@@ -198,7 +175,6 @@ df_cfg = pd.read_csv(MASTER_PATH)
 for col in ["qty", "frequency_cycles"]:
     if col in df_cfg.columns:
         df_cfg[col] = pd.to_numeric(df_cfg[col], errors="coerce").fillna(0).astype(int)
-
 
 date_col = "Changed before date"
 if date_col in df_cfg.columns:
@@ -208,18 +184,12 @@ if date_col in df_cfg.columns:
         errors="coerce",
     ).dt.date
 
-
 df_cfg["line"] = df_cfg["line"].astype(str)
 df_cfg["sub_assembly"] = df_cfg["sub_assembly"].astype(str)
 df_cfg["kind"] = df_cfg["kind"].astype(str)
 
-
-
-
 # ---------- DASHBOARD HELPERS ----------
 THRESHOLD = 5000  # cycles
-
-
 
 def working_cycles_from_date(change_date: dt.date, today: dt.date) -> int:
     if not isinstance(change_date, dt.date):
@@ -232,8 +202,6 @@ def working_cycles_from_date(change_date: dt.date, today: dt.date) -> int:
             days += 1
         d += step
     return days * 1800
-
-
 
 def get_due_items():
     today = dt.date.today()
@@ -249,8 +217,6 @@ def get_due_items():
     df_tmp.insert(1, "Audit No", df_tmp["S.No"])
     return df_tmp
 
-
-
 def get_completed_today_count():
     if not os.path.exists(HISTORY_PATH):
         return 0
@@ -260,9 +226,6 @@ def get_completed_today_count():
     today_str = dt.date.today().strftime("%Y-%m-%d")
     today_audits = df_hist[df_hist["timestamp"].str.startswith(today_str)]
     return len(today_audits)
-
-
-
 
 # ---------- AUDIT HISTORY HELPERS ----------
 def get_next_audit_no() -> int:
@@ -276,8 +239,6 @@ def get_next_audit_no() -> int:
         return 1
     return int(nums.max()) + 1
 
-
-
 def append_audit_history(records: list):
     if not records:
         return
@@ -287,25 +248,16 @@ def append_audit_history(records: list):
     else:
         new_df.to_csv(HISTORY_PATH, mode="w", header=True, index=False)
 
-
-
-
 # ---------- PAGE / NAV STATE ----------
 PAGES = ["Dashboard", "Components", "Configure", "Audit History"]
-
 
 if "page" not in st.session_state:
     st.session_state["page"] = "Login"
 
-
 page = st.session_state["page"]
-
-
-
 
 def nav_card(label: str, danger: bool = False):
     is_active = st.session_state["page"] == label
-
 
     if danger:
         bg = "#fef2f2"
@@ -316,7 +268,6 @@ def nav_card(label: str, danger: bool = False):
         border = "#38bdf8" if is_active else "#1f2937"
         txt = "#e5e7eb"
 
-
     if st.button(label, key=f"nav_{label}", use_container_width=True):
         if danger:
             for k in list(st.session_state.keys()):
@@ -325,7 +276,6 @@ def nav_card(label: str, danger: bool = False):
         else:
             st.session_state["page"] = label
         st.rerun()
-
 
     st.markdown(
         f"""
@@ -346,10 +296,6 @@ def nav_card(label: str, danger: bool = False):
         """,
         unsafe_allow_html=True,
     )
-
-
-
-
 # ---------- SIDEBAR (ONLY AFTER LOGIN) ----------
 if page != "Login":
     with st.sidebar:
@@ -381,14 +327,9 @@ else:
         """,
         unsafe_allow_html=True,
     )
-
-
-
-
 # ---------------- LOGIN PAGE ----------------
 if page == "Login":
     st.markdown("<div class='login-card'>", unsafe_allow_html=True)
-
 
     st.markdown(
         """
@@ -412,37 +353,28 @@ if page == "Login":
         unsafe_allow_html=True,
     )
 
-
     st.markdown("<div class='login-title'>Royal Enfield</div>", unsafe_allow_html=True)
     st.markdown(
         "<div class='login-subtitle'>Please sign in to continue.</div>",
         unsafe_allow_html=True,
     )
 
-
     username = st.text_input("Employee ID")
     password = st.text_input("Password", type="password")
-
 
     if st.button("Login"):
         st.session_state["employee_id"] = username.strip()
         st.session_state["page"] = "Dashboard"
         st.rerun()
 
-
     st.markdown("</div>", unsafe_allow_html=True)
-
-
-
 
 # ---------------- DASHBOARD PAGE ----------------
 elif page == "Dashboard":
     st.title("Dashboard")
 
-
     df_due = get_due_items()
     completed_today = get_completed_today_count()
-
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -452,10 +384,8 @@ elif page == "Dashboard":
     with col3:
         st.metric("Threshold (cycles)", THRESHOLD)
 
-
     st.divider()
     st.subheader("Fixtures / Tools Near Due")
-
 
     if df_due.empty:
         st.write("No fixtures or tools within 5000 cycles of their limit.")
@@ -469,7 +399,6 @@ elif page == "Dashboard":
             fixture_no = row.get("fixture_no", None)
             station_no = row.get("station_no", None)
             row_id = int(row["row_id"])
-
 
             with st.container():
                 c1, c2, c3, c4, c5, c6 = st.columns([0.8, 2.2, 1.8, 2.0, 2.0, 3.0])
@@ -503,13 +432,9 @@ elif page == "Dashboard":
                 with c6:
                     st.write(row.get("fixture_part_desc", ""))
 
-
-
-
 # ---------------- COMPONENTS PAGE ----------------
 elif page == "Components":
     st.title("Components")
-
 
     current_audit_no = st.session_state.get("current_audit_no", None)
     if current_audit_no is None:
@@ -517,9 +442,7 @@ elif page == "Components":
         st.session_state["current_audit_no"] = current_audit_no
     audit_no = current_audit_no
 
-
     st.info(f"Current Audit: #{audit_no}")
-
 
     line_default = st.session_state.get("selected_line", None)
     sa_default = st.session_state.get("selected_sub_assembly", None)
@@ -529,11 +452,9 @@ elif page == "Components":
     selected_row_id = st.session_state.get("selected_row_id", None)
     employee_id = st.session_state.get("employee_id", "")
 
-
     line_list = sorted(df_cfg["line"].unique())
     line_index = line_list.index(line_default) if line_default in line_list else 0
     line = st.selectbox("Line", line_list, index=line_index)
-
 
     sa_options_all = (
         df_cfg[df_cfg["line"] == line]["sub_assembly"]
@@ -552,13 +473,11 @@ elif page == "Components":
         index=0 if kind_default == "Fixture" else 1,
     )
 
-
     base_subset = df_cfg[
         (df_cfg["line"] == line)
         & (df_cfg["sub_assembly"] == sub_assembly)
         & (df_cfg["kind"] == kind)
     ]
-
 
     if kind == "Fixture":
         fixture_options = base_subset["fixture_no"].dropna().astype(str).unique().tolist()
@@ -576,22 +495,17 @@ elif page == "Components":
         st.write(f"Selected station: {station} – {station_name}")
         fixture = ""
 
-
     if selected_row_id is not None and selected_row_id in check_subset.index:
         check_subset = check_subset.loc[[selected_row_id]]
-
 
     st.divider()
     st.subheader("Checklist")
 
-
     today = dt.date.today()
-
 
     def row_current_freq(idx):
         change_date = df_cfg.loc[idx, date_col] if date_col in df_cfg.columns else None
         return working_cycles_from_date(change_date, today)
-
 
     base_cols = ["fixture_part_desc", "check_point", "qty", "frequency_cycles"]
     table = check_subset[base_cols].copy()
@@ -608,7 +522,6 @@ elif page == "Components":
         }
     ).reset_index(drop=True)
 
-
     ss = st.session_state
     ss.setdefault("row_status", {})
     ss.setdefault("row_change_date", {})
@@ -616,10 +529,8 @@ elif page == "Components":
     ss.setdefault("row_image_mode", {})
     ss.setdefault("row_image_path", {})
 
-
     original_indices = check_subset.index.to_list()
     history_rows = []
-
 
     # helper for left-aligned cell content
     def left(text):
@@ -627,7 +538,6 @@ elif page == "Components":
             f"<div style='text-align:left;'>{text}</div>",
             unsafe_allow_html=True,
         )
-
 
     # scrollable checklist container
     st.markdown(
@@ -638,19 +548,16 @@ elif page == "Components":
         unsafe_allow_html=True,
     )
 
-
     # header row with centered headers
     h0, h1, h2, h3, h4, h5, h_status, h8, h9, h10 = st.columns(
         [1.0, 3.6, 2.5, 0.8, 1.8, 1.8, 1.4, 2.5, 2.7, 2.0]
     )
-
 
     def center_header(text: str):
         st.markdown(
             f"<div style='text-align:center; font-weight:600;'>{text}</div>",
             unsafe_allow_html=True,
         )
-
 
     with h0:
         center_header("S.No")
@@ -673,11 +580,9 @@ elif page == "Components":
     with h10:
         center_header("Image")
 
-
     # rows
     for local_idx, row in table.iterrows():
         df_index = original_indices[local_idx]
-
 
         c0, c1, c2, c3, c4, c5, c_status, c8, c9, c10 = st.columns(
             [1.0, 3.6, 2.5, 0.5, 1.8, 1.8, 1.6, 2.3, 2.5, 2.1]
@@ -695,16 +600,13 @@ elif page == "Components":
         with c5:
             left(int(row["Current frequency"]))
 
-
         csv_date = df_cfg.loc[df_index, date_col] if date_col in df_cfg.columns else None
         default_date = csv_date if isinstance(csv_date, dt.date) else today
-
 
         with c8:
             key_dt = f"date_{df_index}"
             chosen_date = st.date_input("", value=default_date, key=key_dt)
             ss["row_change_date"][df_index] = chosen_date
-
 
         with c_status:
             current_status = ss["row_status"].get(df_index, "Yes")
@@ -718,9 +620,7 @@ elif page == "Components":
             )
             ss["row_status"][df_index] = status
 
-
         show_extra = (ss["row_status"][df_index] == "No")
-
 
         with c9:
             if show_extra:
@@ -734,7 +634,6 @@ elif page == "Components":
 
 
         img_path = ss["row_image_path"].get(df_index, "")
-
 
         # ---- CAMERA-ONLY IMAGE CAPTURE ----
         with c10:
@@ -762,7 +661,6 @@ elif page == "Components":
                 left("")
         # -----------------------------------
 
-
         history_rows.append(
             {
                 "timestamp": dt.datetime.now().isoformat(timespec="seconds"),
@@ -785,7 +683,6 @@ elif page == "Components":
             }
         )
 
-
     st.markdown(
         """
           </div>
@@ -793,8 +690,6 @@ elif page == "Components":
         """,
         unsafe_allow_html=True,
     )
-
-
     # --------- UPDATED SAVE AUDIT LOGIC ---------
     if st.button("Save Audit"):
         audited_items = []
@@ -802,14 +697,11 @@ elif page == "Components":
             if idx in ss.get("row_status", {}):
                 audited_items.append(idx)
 
-
         if not audited_items:
             st.warning("No items to audit.")
             st.rerun()
 
-
         today = dt.date.today()
-
 
         for idx in audited_items:
             status_val = ss.get("row_status", {}).get(idx, "Yes")
@@ -832,16 +724,13 @@ elif page == "Components":
         df_to_save[date_col] = df_to_save[date_col].fillna("")
         df_to_save.to_csv(MASTER_PATH, index=False)
 
-
         append_audit_history(filtered_history)
-
 
         total_items = len(audited_items)
         issues_found = len(filtered_history)
         st.success(
             f"Audit #{audit_no} completed! {total_items} items checked, {issues_found} issues logged"
         )
-
 
         for key in [
             "selected_line",
@@ -864,17 +753,11 @@ elif page == "Components":
         st.session_state["page"] = "Dashboard"
         st.rerun()
 
-
-
-
 # ---------------- CONFIGURE PAGE ----------------
 elif page == "Configure":
     st.title("Configure (view master data)")
     st.write("Master configuration from config_master.csv:")
     st.dataframe(df_cfg, use_container_width=True)
-
-
-
 
 # ---------------- AUDIT HISTORY PAGE ----------------
 elif page == "Audit History":
