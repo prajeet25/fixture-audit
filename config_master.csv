@@ -1,34 +1,34 @@
-line,sub_assembly,,,kind,fixture_no,station_no,station_name,fixture_part_desc,check_point,qty,frequency_cycles,Changed before date
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 1 condition -LH)-pallet,No damage & No loosen,1,45000,17-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 2 condition -LH)-pallet,No damage & No loosen,1,45000,11-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 3 condition -LH)-pallet,No damage & No loosen,1,45000,09-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 4 condition -LH)-pallet,No damage & No loosen,1,45000,29-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 1 condition -RH)-pallet,No damage & No loosen,1,45000,18-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 2 condition -RH)-pallet,No damage & No loosen,1,45000,12-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 3 condition -RH)-pallet,No damage & No loosen,1,45000,10-12-2025
+line,sub_assembly,Unnamed: 2,Unnamed: 3,kind,fixture_no,station_no,station_name,fixture_part_desc,check_point,qty,frequency_cycles,Changed before date
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 1 condition -LH)-pallet,No damage & No loosen,1,45000,17-01-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 2 condition -LH)-pallet,No damage & No loosen,1,45000,11-01-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 3 condition -LH)-pallet,No damage & No loosen,1,45000,09-02-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 4 condition -LH)-pallet,No damage & No loosen,1,45000,29-01-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 1 condition -RH)-pallet,No damage & No loosen,1,45000,18-02-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 2 condition -RH)-pallet,No damage & No loosen,1,45000,12-02-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 3 condition -RH)-pallet,No damage & No loosen,1,45000,10-02-2026
 J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Locating pin 4 condition -RH)-pallet,No damage & No loosen,1,45000,02-01-2026
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Rest pad condition -pallet,No damage & No loosen,1,45000,11-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pallet bottom guide plate condition,No damage & No loosen,1,45000,29-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pre guide rest block -LH,No damage & No loosen,1,45000,12-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pre guide rest block -LH,No damage & No loosen,1,45000,22-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Bottom fixture locating pin-1-LH,No damage & No loosen,1,45000,13-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Bottom fixture locating pin-1-RH,No damage & No loosen,1,45000,23-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Rest pad condition -Fixture,No damage & No loosen,1,45000,12-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pallet guide pin-1 condition,No damage & No loosen,1,45000,28-12-2025
-J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pallet guide pin-2 condition,No damage & No loosen,1,45000,18-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Top clamp pad condition-Nylon,No damage & No loosen,1,45000,10-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH drive shaft side port seal,No damage & No loosen,1,45000,11-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Cooling side port seal,No damage & No loosen,1,45000,16-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Cooling bottom port seal,No damage & No loosen,1,45000,18-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Y-Gallery seal,No damage & No loosen,1,45000,21-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Oil pump top port seal,No damage & No loosen,1,45000,02-01-2026
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Cooling top port seal,No damage & No loosen,1,45000,15-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH drive shaft bearing port seal,No damage & No loosen,1,45000,12-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH drive shaft top port seal,No damage & No loosen,1,45000,12-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Oil strainer port seal,No damage & No loosen,1,45000,28-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Counter shaft top port seal,No damage & No loosen,1,45000,18-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Counter shaft bearing port seal,No damage & No loosen,1,45000,10-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Piston jet seal,No damage & No loosen,1,45000,12-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,Seals & Adopter condition-8-RH,No damage & No loosen,1,45000,10-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,Punch pin condition-LH,No damage & No loosen,1,45000,10-12-2025
-J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,Punch pin condition-RH,No damage & No loosen,1,45000,29-12-2025
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Rest pad condition -pallet,No damage & No loosen,1,45000,11-02-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pallet bottom guide plate condition,No damage & No loosen,1,45000,29-01-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pre guide rest block -LH,No damage & No loosen,1,45000,12-02-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pre guide rest block -LH,No damage & No loosen,1,45000,22-01-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Bottom fixture locating pin-1-LH,No damage & No loosen,1,45000,13-02-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Bottom fixture locating pin-1-RH,No damage & No loosen,1,45000,23-01-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Rest pad condition -Fixture,No damage & No loosen,1,45000,12-02-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pallet guide pin-1 condition,No damage & No loosen,1,45000,28-01-2026
+J-Line,Crankcase Sub Assembly,,,Fixture,Fixture 2,,,Pallet guide pin-2 condition,No damage & No loosen,1,45000,18-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Top clamp pad condition-Nylon,No damage & No loosen,1,45000,10-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH drive shaft side port seal,No damage & No loosen,1,45000,11-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Cooling side port seal,No damage & No loosen,1,45000,16-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Cooling bottom port seal,No damage & No loosen,1,45000,18-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Y-Gallery seal,No damage & No loosen,1,45000,21-01-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Oil pump top port seal,No damage & No loosen,1,45000,02-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Cooling top port seal,No damage & No loosen,1,45000,15-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH drive shaft bearing port seal,No damage & No loosen,1,45000,12-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH drive shaft top port seal,No damage & No loosen,1,45000,12-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Oil strainer port seal,No damage & No loosen,1,45000,28-01-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Counter shaft top port seal,No damage & No loosen,1,45000,18-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,LH Counter shaft bearing port seal,No damage & No loosen,1,45000,10-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,RH Piston jet seal,No damage & No loosen,1,45000,12-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,Seals & Adopter condition-8-RH,No damage & No loosen,1,45000,10-02-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,Punch pin condition-LH,No damage & No loosen,1,45000,08-00-2026
+J-Line,Crankcase Sub Assembly,,,Tool,,SA 02,LH&RH CC Countiunity and leak testing station,Punch pin condition-RH,No damage & No loosen,1,45000,29-01-2026
